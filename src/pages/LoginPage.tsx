@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,11 +10,16 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Will integrate with auth system
-    console.log("Login submitted");
+    // Will integrate with auth system - for now, navigate to dashboard
+    navigate("/dashboard");
+  };
+
+  const handleDemoAccess = () => {
+    navigate("/dashboard");
   };
 
   return (
@@ -80,6 +85,24 @@ export default function LoginPage() {
 
             <Button type="submit" className="w-full">
               Sign in
+            </Button>
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-border" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-card px-2 text-muted-foreground">Or</span>
+              </div>
+            </div>
+
+            <Button 
+              type="button" 
+              variant="outline" 
+              className="w-full"
+              onClick={handleDemoAccess}
+            >
+              Try Demo Dashboard
             </Button>
           </form>
 
