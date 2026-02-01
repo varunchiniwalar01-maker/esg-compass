@@ -11,7 +11,8 @@ import {
   Settings,
   LogOut,
   Menu,
-  X
+  X,
+  MessageSquareText
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -21,6 +22,7 @@ const navItems = [
   { href: "/dashboard/assessment", label: "ESG Assessment", icon: ClipboardCheck },
   { href: "/dashboard/goals", label: "Goals", icon: Target },
   { href: "/dashboard/carbon", label: "Carbon Tracking", icon: Leaf },
+  { href: "/dashboard/investor-qa", label: "Investor Q&A", icon: MessageSquareText },
   { href: "/dashboard/reports", label: "AI Reports", icon: FileText },
   { href: "/dashboard/documents", label: "Documents", icon: FolderOpen },
   { href: "/dashboard/share", label: "Share", icon: Share2 },
