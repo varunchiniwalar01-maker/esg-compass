@@ -14,6 +14,7 @@ import DashboardPage from "./pages/DashboardPage";
 import AssessmentPage from "./pages/AssessmentPage";
 import GoalsPage from "./pages/GoalsPage";
 import CarbonPage from "./pages/CarbonPage";
+import InvestorQAPage from "./pages/InvestorQAPage";
 import ReportsPage from "./pages/ReportsPage";
 import DocumentsPage from "./pages/DocumentsPage";
 import SharePage from "./pages/SharePage";
@@ -46,6 +47,7 @@ const App = () => (
             <Route path="/dashboard/assessment" element={<AssessmentPage />} />
             <Route path="/dashboard/goals" element={<GoalsPage />} />
             <Route path="/dashboard/carbon" element={<CarbonPage />} />
+            <Route path="/dashboard/investor-qa" element={<InvestorQAPage />} />
             <Route path="/dashboard/reports" element={<ReportsPage />} />
             <Route path="/dashboard/documents" element={<DocumentsPage />} />
             <Route path="/dashboard/share" element={<SharePage />} />
