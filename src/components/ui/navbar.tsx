@@ -3,6 +3,7 @@ import { Button } from "./button";
 import { cn } from "@/lib/utils";
 import { Menu, X, Leaf } from "lucide-react";
 import { useState } from "react";
+import { SkyToggle } from "@/components/SkyToggle";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -51,6 +52,7 @@ export function Navbar() {
           <Link to="/signup">
             <Button size="sm">Get Started</Button>
           </Link>
+          <SkyToggle />
         </div>
 
         {/* Mobile Menu Button */}
@@ -86,6 +88,9 @@ export function Navbar() {
               </Link>
             ))}
             <div className="flex flex-col gap-2 pt-4 border-t border-border">
+              <div className="flex justify-center pb-2">
+                <SkyToggle />
+              </div>
               <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
                 <Button variant="ghost" className="w-full">
                   Log in

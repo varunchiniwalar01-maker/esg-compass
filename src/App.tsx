@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ThemeProvider } from "next-themes";
 import HomePage from "./pages/HomePage";
 import HowItWorksPage from "./pages/HowItWorksPage";
 import PricingPage from "./pages/PricingPage";
@@ -24,39 +25,41 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          {/* Public Pages */}
-          <Route path="/" element={<HomePage />} />
-          <Route path="/how-it-works" element={<HowItWorksPage />} />
-          <Route path="/pricing" element={<PricingPage />} />
-          <Route path="/legal" element={<LegalPage />} />
-          
-          {/* Auth Pages */}
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/signup" element={<SignupPage />} />
-          
-          {/* Dashboard Pages */}
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/dashboard/assessment" element={<AssessmentPage />} />
-          <Route path="/dashboard/goals" element={<GoalsPage />} />
-          <Route path="/dashboard/carbon" element={<CarbonPage />} />
-          <Route path="/dashboard/reports" element={<ReportsPage />} />
-          <Route path="/dashboard/documents" element={<DocumentsPage />} />
-          <Route path="/dashboard/share" element={<SharePage />} />
-          <Route path="/dashboard/settings" element={<SettingsPage />} />
-          
-          {/* Public Share View */}
-          <Route path="/share/:id" element={<PublicSharePage />} />
-          
-          {/* Catch-all */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+    <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            {/* Public Pages */}
+            <Route path="/" element={<HomePage />} />
+            <Route path="/how-it-works" element={<HowItWorksPage />} />
+            <Route path="/pricing" element={<PricingPage />} />
+            <Route path="/legal" element={<LegalPage />} />
+
+            {/* Auth Pages */}
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignupPage />} />
+
+            {/* Dashboard Pages */}
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/dashboard/assessment" element={<AssessmentPage />} />
+            <Route path="/dashboard/goals" element={<GoalsPage />} />
+            <Route path="/dashboard/carbon" element={<CarbonPage />} />
+            <Route path="/dashboard/reports" element={<ReportsPage />} />
+            <Route path="/dashboard/documents" element={<DocumentsPage />} />
+            <Route path="/dashboard/share" element={<SharePage />} />
+            <Route path="/dashboard/settings" element={<SettingsPage />} />
+
+            {/* Public Share View */}
+            <Route path="/share/:id" element={<PublicSharePage />} />
+
+            {/* Catch-all */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 

@@ -58,7 +58,7 @@ export function FeaturesSection() {
     <section className="py-24 bg-card">
       <div className="container">
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <h2 className="text-3xl font-bold text-foreground sm:text-4xl">
+          <h2 className="text-3xl font-bold text-primary sm:text-4xl">
             Everything You Need to Track ESG
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
