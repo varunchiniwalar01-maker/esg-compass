@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { ArrowRight, BarChart3, Target, FileText } from "lucide-react";
+import { ArrowRight, BarChart3, Target, FileText, Sparkles } from "lucide-react";
 import heroImage from "@/assets/hero-sustainability.jpg";
 
 export function HeroSection() {
