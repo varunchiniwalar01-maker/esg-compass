@@ -52,7 +52,7 @@ export function Navbar() {
           <Link to="/signup">
             <Button size="sm">Get Started</Button>
           </Link>
-          <SkyToggle />
+          <ThemeToggle />
         </div>
 
         {/* Mobile Menu Button */}
