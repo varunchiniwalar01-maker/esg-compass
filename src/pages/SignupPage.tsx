@@ -82,6 +82,7 @@ export default function SignupPage() {
         email: data.email,
         password: data.password,
         options: {
+          emailRedirectTo: window.location.origin,
           data: {
             full_name: data.fullName,
             company_name: data.companyName,
