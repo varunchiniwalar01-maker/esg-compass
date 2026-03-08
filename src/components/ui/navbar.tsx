@@ -3,7 +3,7 @@ import { Button } from "./button";
 import { cn } from "@/lib/utils";
 import { Menu, X, Leaf } from "lucide-react";
 import { useState } from "react";
-import { SkyToggle } from "@/components/SkyToggle";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const navLinks = [
   { href: "/", label: "Home" },
