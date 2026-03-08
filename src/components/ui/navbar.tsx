@@ -89,7 +89,7 @@ export function Navbar() {
             ))}
             <div className="flex flex-col gap-2 pt-4 border-t border-border">
               <div className="flex justify-center pb-2">
-                <SkyToggle />
+                <ThemeToggle />
               </div>
               <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
                 <Button variant="ghost" className="w-full">
