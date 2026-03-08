@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { ArrowRight, BarChart3, Target, FileText } from "lucide-react";
+import { ArrowRight, BarChart3, Target, FileText, Sparkles } from "lucide-react";
 import heroImage from "@/assets/hero-sustainability.jpg";
 
 export function HeroSection() {
@@ -51,7 +51,7 @@ export function HeroSection() {
             </Link>
           </div>
 
-          <div className="mt-12 grid grid-cols-3 gap-6">
+          <div className="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-6">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent">
                 <BarChart3 className="h-5 w-5 text-accent-foreground" />
@@ -69,6 +69,12 @@ export function HeroSection() {
                 <FileText className="h-5 w-5 text-accent-foreground" />
               </div>
               <span className="text-sm font-medium text-foreground">AI Summaries</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent">
+                <Sparkles className="h-5 w-5 text-accent-foreground" />
+              </div>
+              <span className="text-sm font-medium text-foreground">Report Generation</span>
             </div>
           </div>
         </div>
