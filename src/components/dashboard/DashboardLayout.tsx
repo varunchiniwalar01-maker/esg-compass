@@ -2,8 +2,6 @@ import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { 
   LayoutDashboard, 
-  ClipboardCheck, 
-  Target, 
   Leaf, 
   FileText, 
   FolderOpen,
@@ -19,10 +17,7 @@ import { useState } from "react";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/dashboard/assessment", label: "ESG Assessment", icon: ClipboardCheck },
-  { href: "/dashboard/goals", label: "Goals", icon: Target },
   { href: "/dashboard/carbon", label: "Carbon Tracking", icon: Leaf },
-  { href: "/dashboard/investor-qa", label: "Investor Q&A", icon: MessageSquareText },
   { href: "/dashboard/reports", label: "AI Reports", icon: FileText },
   { href: "/dashboard/documents", label: "Documents", icon: FolderOpen },
   { href: "/dashboard/share", label: "Share", icon: Share2 },

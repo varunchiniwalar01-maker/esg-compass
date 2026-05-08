@@ -1,55 +1,55 @@
 import { 
-  ClipboardCheck, 
   LineChart, 
-  Target, 
   Zap, 
   FileUp, 
   Share2,
   Leaf,
-  Shield
+  Shield,
+  FileText,
+  Globe
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
 const features = [
   {
-    icon: ClipboardCheck,
-    title: "ESG Assessment",
-    description: "Answer 20-30 guided questions across Environmental, Social, and Governance areas to get your baseline ESG score.",
+    icon: Leaf,
+    title: "Carbon Tracking",
+    description: "Enter your electricity and fuel usage. We calculate your Scope 1 and Scope 2 emissions automatically using precise emission factors.",
   },
   {
     icon: LineChart,
-    title: "Visual Dashboard",
-    description: "Track your ESG progress over time with intuitive charts, risk indicators, and monthly trend analysis.",
+    title: "Green Score Formula",
+    description: "Your score is derived from a transparent mathematical formula: cat_score = clamp(100 × (2 - ratio) / 1.8, 0, 100).",
   },
   {
-    icon: Target,
-    title: "Goal Tracking",
-    description: "Set and monitor sustainability goals with pre-built templates for energy, water, waste, and policies.",
+    icon: Globe,
+    title: "Sector Benchmarking",
+    description: "We benchmark your carbon intensity against industry-specific standards to give you a realistic and competitive ratio.",
   },
   {
-    icon: Leaf,
-    title: "Carbon Tracking",
-    description: "Estimate your carbon emissions from electricity and fuel with automatic calculations and trend analysis.",
+    icon: FileText,
+    title: "Bank-Ready Reports",
+    description: "Generate structured reports designed for banks and NBFCs, including full formula breakdowns and action plans.",
   },
   {
     icon: Zap,
     title: "AI-Powered Insights",
-    description: "Generate professional ESG summaries with strengths, gaps, and 90-day action plans at the click of a button.",
+    description: "Get automated strengths, gaps, and 90-day improvement plans based on your actual carbon data.",
   },
   {
     icon: FileUp,
-    title: "Document Storage",
-    description: "Upload and organize policies, certificates, and utility bills organized by ESG category.",
+    title: "Stored Inputs",
+    description: "View and manage every single data point you've entered. Complete transparency for audit readiness.",
   },
   {
     icon: Share2,
-    title: "Shareable Reports",
-    description: "Create read-only links to share your ESG snapshot with investors and stakeholders — no login required.",
+    title: "Shareable Snapshot",
+    description: "Create read-only links to share your Green Score with stakeholders without them needing to log in.",
   },
   {
     icon: Shield,
     title: "Secure & Private",
-    description: "Your data is encrypted and stored securely. Only you control who sees your ESG information.",
+    description: "Your data is stored securely in Supabase. You maintain full ownership and control over your sustainability data.",
   },
 ];
 
@@ -59,10 +59,10 @@ export function FeaturesSection() {
       <div className="container">
         <div className="text-center max-w-2xl mx-auto mb-16">
           <h2 className="text-3xl font-bold text-primary sm:text-4xl">
-            Everything You Need to Track ESG
+            Everything You Need for Carbon Tracking
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
-            A complete toolkit designed for simplicity — no sustainability expertise required.
+            A complete toolkit designed for simplicity — get your bankable Green Score in minutes.
           </p>
         </div>
 

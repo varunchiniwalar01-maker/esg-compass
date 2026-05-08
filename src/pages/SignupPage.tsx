@@ -1,10 +1,12 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Leaf, Eye, EyeOff } from "lucide-react";
+import { Leaf, Eye, EyeOff, Loader2 } from "lucide-react";
+import { useAuth } from "@/context/auth";
+import { toast } from "sonner";
 
 export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -14,11 +16,23 @@ export default function SignupPage() {
     email: "",
     password: "",
   });
+  const { signup, isLoading } = useAuth();
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Will integrate with auth system
-    console.log("Signup submitted");
+    try {
+      await signup(
+        formData.companyName,
+        formData.fullName,
+        formData.email,
+        formData.password
+      );
+      toast.success("Account created successfully!");
+      navigate("/dashboard");
+    } catch (error) {
+      toast.error("Failed to create account. Please try again.");
+    }
   };
 
   return (
@@ -46,6 +60,7 @@ export default function SignupPage() {
                 value={formData.companyName}
                 onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
                 required
+                disabled={isLoading}
               />
             </div>
 
@@ -58,6 +73,7 @@ export default function SignupPage() {
                 value={formData.fullName}
                 onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                 required
+                disabled={isLoading}
               />
             </div>
 
@@ -70,6 +86,7 @@ export default function SignupPage() {
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 required
+                disabled={isLoading}
               />
             </div>
 
@@ -84,6 +101,7 @@ export default function SignupPage() {
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   required
                   minLength={8}
+                  disabled={isLoading}
                 />
                 <button
                   type="button"
@@ -100,8 +118,15 @@ export default function SignupPage() {
               <p className="text-xs text-muted-foreground">Minimum 8 characters</p>
             </div>
 
-            <Button type="submit" className="w-full">
-              Create account
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Creating account...
+                </>
+              ) : (
+                "Create account"
+              )}
             </Button>
           </form>
 

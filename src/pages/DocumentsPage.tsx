@@ -1,112 +1,70 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
 import { 
-  Upload, 
   FolderOpen, 
   FileText, 
-  Image, 
-  File,
   Download,
   Trash2,
-  Plus
 } from "lucide-react";
-import { cn } from "@/lib/utils";
-
-interface Document {
-  id: string;
-  name: string;
-  category: "environmental" | "social" | "governance" | "other";
-  type: "policy" | "certificate" | "bill" | "other";
-  uploadedAt: string;
-  size: string;
-}
-
-const mockDocuments: Document[] = [
-  {
-    id: "1",
-    name: "POSH_Policy_2024.pdf",
-    category: "social",
-    type: "policy",
-    uploadedAt: "2025-01-15",
-    size: "1.2 MB",
-  },
-  {
-    id: "2",
-    name: "Electricity_Bill_Dec2024.pdf",
-    category: "environmental",
-    type: "bill",
-    uploadedAt: "2025-01-10",
-    size: "245 KB",
-  },
-  {
-    id: "3",
-    name: "Code_of_Conduct.pdf",
-    category: "governance",
-    type: "policy",
-    uploadedAt: "2025-01-05",
-    size: "890 KB",
-  },
-  {
-    id: "4",
-    name: "ISO_14001_Certificate.pdf",
-    category: "environmental",
-    type: "certificate",
-    uploadedAt: "2024-12-20",
-    size: "156 KB",
-  },
-  {
-    id: "5",
-    name: "Data_Privacy_Policy.pdf",
-    category: "governance",
-    type: "policy",
-    uploadedAt: "2024-12-15",
-    size: "456 KB",
-  },
-];
-
-const categoryLabels = {
-  environmental: "Environmental",
-  social: "Social",
-  governance: "Governance",
-  other: "Other",
-};
-
-const typeLabels = {
-  policy: "Policy",
-  certificate: "Certificate",
-  bill: "Utility Bill",
-  other: "Other",
-};
-
-const typeIcons = {
-  policy: FileText,
-  certificate: File,
-  bill: FileText,
-  other: File,
-};
+import { useAuth } from "@/context/auth";
+import { getCarbonLogs, deleteCarbonLog, type CarbonLog } from "@/lib/supabase-data";
+import { toast } from "sonner";
 
 export default function DocumentsPage() {
-  const [documents, setDocuments] = useState<Document[]>(mockDocuments);
-  const [showUploadDialog, setShowUploadDialog] = useState(false);
-  const [filterCategory, setFilterCategory] = useState<string>("all");
+  const { user } = useAuth();
+  const [logs, setLogs] = useState<CarbonLog[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
 
-  const filteredDocuments = documents.filter((doc) => {
-    const matchesCategory = filterCategory === "all" || doc.category === filterCategory;
-    const matchesSearch = doc.name.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
+  useEffect(() => {
+    async function loadData() {
+      if (user) {
+        try {
+          const data = await getCarbonLogs(user.id);
+          setLogs(data);
+        } catch (error) {
+          console.error("Failed to load logs:", error);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    }
+    loadData();
+  }, [user]);
 
-  const documentsByCategory = {
-    environmental: documents.filter(d => d.category === "environmental").length,
-    social: documents.filter(d => d.category === "social").length,
-    governance: documents.filter(d => d.category === "governance").length,
+  const filteredLogs = logs.filter((log) =>
+    log.year.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    log.sector.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const handleDelete = async (id: string) => {
+    if (!window.confirm("Are you sure?")) return;
+    try {
+      await deleteCarbonLog(id);
+      setLogs(logs.filter(l => l.id !== id));
+      toast.success("Log deleted.");
+    } catch (error) {
+      toast.error("Failed to delete.");
+    }
+  };
+
+  const handleExportCSV = () => {
+    if (logs.length === 0) return;
+    const headers = "Year,Sector,Revenue (Cr),Electricity (kWh),Diesel (L),Petrol (L),LPG (kg),Scope 1 CO₂e (kg),Scope 2 CO₂e (kg),Total CO₂e (kg),Intensity,Benchmark,Ratio,Score\n";
+    const rows = logs.map(l =>
+      `${l.year},${l.sector},${l.revenue_inr_cr},${l.electricity_kwh},${l.diesel_liters},${l.petrol_liters},${l.lpg_kg},${l.scope1_co2e.toFixed(1)},${l.scope2_co2e.toFixed(1)},${l.total_co2e.toFixed(1)},${l.intensity.toFixed(2)},${l.sector_benchmark},${l.ratio.toFixed(4)},${l.cat_score}`
+    ).join("\n");
+
+    const blob = new Blob([headers + rows], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "carbon_data_export.csv";
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -114,80 +72,21 @@ export default function DocumentsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Document Storage</h1>
+          <h1 className="text-2xl font-bold text-foreground">Stored Data</h1>
           <p className="text-muted-foreground">
-            Store and organize your ESG evidence
+            All the exact numbers you entered during carbon tracking.
           </p>
         </div>
-        <Dialog open={showUploadDialog} onOpenChange={setShowUploadDialog}>
-          <DialogTrigger asChild>
-            <Button className="gap-2">
-              <Upload className="h-4 w-4" />
-              Upload Document
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Upload Document</DialogTitle>
-            </DialogHeader>
-            <form className="space-y-4 mt-4">
-              <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
-                <Upload className="h-10 w-10 text-muted-foreground mx-auto mb-4" />
-                <p className="text-sm text-muted-foreground mb-2">
-                  Drag and drop your file here, or click to browse
-                </p>
-                <Button variant="outline" size="sm">
-                  Choose File
-                </Button>
-                <p className="text-xs text-muted-foreground mt-2">
-                  PDF, DOC, DOCX, PNG, JPG up to 10MB
-                </p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Category</Label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="environmental">Environmental</SelectItem>
-                      <SelectItem value="social">Social</SelectItem>
-                      <SelectItem value="governance">Governance</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Document Type</Label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="policy">Policy</SelectItem>
-                      <SelectItem value="certificate">Certificate</SelectItem>
-                      <SelectItem value="bill">Utility Bill</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-2 pt-4">
-                <Button variant="outline" onClick={() => setShowUploadDialog(false)}>
-                  Cancel
-                </Button>
-                <Button type="submit">Upload</Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
+        {logs.length > 0 && (
+          <Button variant="outline" className="gap-2" onClick={handleExportCSV}>
+            <Download className="h-4 w-4" />
+            Export CSV
+          </Button>
+        )}
       </div>
 
       {/* Stats */}
-      <div className="grid gap-4 md:grid-cols-4 mb-8">
+      <div className="grid gap-4 md:grid-cols-3 mb-8">
         <Card className="border-border">
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
@@ -195,8 +94,8 @@ export default function DocumentsPage() {
                 <FolderOpen className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-foreground">{documents.length}</div>
-                <div className="text-sm text-muted-foreground">Total Documents</div>
+                <div className="text-2xl font-bold text-foreground">{logs.length}</div>
+                <div className="text-sm text-muted-foreground">Years Logged</div>
               </div>
             </div>
           </CardContent>
@@ -208,8 +107,10 @@ export default function DocumentsPage() {
                 <FileText className="h-5 w-5 text-chart-1" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-foreground">{documentsByCategory.environmental}</div>
-                <div className="text-sm text-muted-foreground">Environmental</div>
+                <div className="text-2xl font-bold text-foreground">
+                  {logs.length > 0 ? (logs.reduce((s, l) => s + l.total_co2e, 0) / 1000).toFixed(1) : 0} t
+                </div>
+                <div className="text-sm text-muted-foreground">Total CO₂e (all years)</div>
               </div>
             </div>
           </CardContent>
@@ -217,105 +118,113 @@ export default function DocumentsPage() {
         <Card className="border-border">
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-chart-2/20">
-                <FileText className="h-5 w-5 text-chart-2" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/20">
+                <FileText className="h-5 w-5 text-emerald-500" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-foreground">{documentsByCategory.social}</div>
-                <div className="text-sm text-muted-foreground">Social</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-border">
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-chart-3/20">
-                <FileText className="h-5 w-5 text-chart-3" />
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-foreground">{documentsByCategory.governance}</div>
-                <div className="text-sm text-muted-foreground">Governance</div>
+                <div className="text-2xl font-bold text-foreground">
+                  {logs.length > 0 ? Math.round(logs.reduce((s, l) => s + l.cat_score, 0) / logs.length) : 0}
+                </div>
+                <div className="text-sm text-muted-foreground">Avg Green Score</div>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-6">
+      {/* Search */}
+      <div className="mb-6">
         <Input
-          placeholder="Search documents..."
+          placeholder="Search by year or sector..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="max-w-sm"
         />
-        <Select value={filterCategory} onValueChange={setFilterCategory}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="All Categories" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Categories</SelectItem>
-            <SelectItem value="environmental">Environmental</SelectItem>
-            <SelectItem value="social">Social</SelectItem>
-            <SelectItem value="governance">Governance</SelectItem>
-            <SelectItem value="other">Other</SelectItem>
-          </SelectContent>
-        </Select>
       </div>
 
-      {/* Documents List */}
-      <Card className="border-border">
-        <CardContent className="p-0">
-          {filteredDocuments.length === 0 ? (
-            <div className="py-12 text-center">
-              <FolderOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground">No documents found</p>
-            </div>
-          ) : (
-            <div className="divide-y divide-border">
-              {filteredDocuments.map((doc) => {
-                const Icon = typeIcons[doc.type];
-                return (
-                  <div 
-                    key={doc.id}
-                    className="flex items-center gap-4 p-4 hover:bg-accent/30 transition-colors"
-                  >
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
-                      <Icon className="h-5 w-5 text-muted-foreground" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-foreground truncate">{doc.name}</p>
-                      <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
-                        <span>{categoryLabels[doc.category]}</span>
-                        <span>•</span>
-                        <span>{typeLabels[doc.type]}</span>
-                        <span>•</span>
-                        <span>{doc.size}</span>
-                      </div>
-                    </div>
-                    <span className="text-sm text-muted-foreground hidden sm:block">
-                      {new Date(doc.uploadedAt).toLocaleDateString("en-IN", {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                      })}
-                    </span>
-                    <div className="flex gap-1">
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <Download className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive">
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {/* Data Table */}
+      {isLoading ? (
+        <div className="py-20 text-center">Loading data...</div>
+      ) : filteredLogs.length === 0 ? (
+        <Card className="border-border">
+          <CardContent className="py-16 text-center">
+            <FolderOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <p className="text-muted-foreground">
+              {logs.length === 0
+                ? "No carbon data logged yet. Go to Carbon Tracking to log your first year."
+                : "No results match your search."}
+            </p>
+          </CardContent>
+        </Card>
+      ) : (
+        filteredLogs.map((log) => (
+          <Card key={log.id} className="border-border mb-4">
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg">FY {log.year} — <span className="capitalize">{log.sector}</span></CardTitle>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-bold text-primary">Score: {log.cat_score}/100</span>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => log.id && handleDelete(log.id)}>
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                <div>
+                  <span className="text-muted-foreground">Revenue</span>
+                  <p className="font-medium text-foreground">{log.revenue_inr_cr} INR Cr</p>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Electricity</span>
+                  <p className="font-medium text-foreground">{log.electricity_kwh.toLocaleString()} kWh</p>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Diesel</span>
+                  <p className="font-medium text-foreground">{log.diesel_liters.toLocaleString()} L</p>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Petrol</span>
+                  <p className="font-medium text-foreground">{log.petrol_liters.toLocaleString()} L</p>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">LPG</span>
+                  <p className="font-medium text-foreground">{log.lpg_kg.toLocaleString()} kg</p>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Scope 1 CO₂e</span>
+                  <p className="font-medium text-foreground">{log.scope1_co2e.toFixed(1)} kg</p>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Scope 2 CO₂e</span>
+                  <p className="font-medium text-foreground">{log.scope2_co2e.toFixed(1)} kg</p>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Total CO₂e</span>
+                  <p className="font-medium text-foreground">{log.total_co2e.toFixed(1)} kg</p>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Intensity</span>
+                  <p className="font-medium text-foreground">{log.intensity.toFixed(2)} kgCO₂e/Cr</p>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Sector Benchmark</span>
+                  <p className="font-medium text-foreground">{log.sector_benchmark}</p>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Ratio</span>
+                  <p className="font-medium text-foreground">{log.ratio.toFixed(4)}</p>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Green Score</span>
+                  <p className="font-bold text-primary text-lg">{log.cat_score}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))
+      )}
     </DashboardLayout>
   );
 }

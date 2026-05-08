@@ -6,10 +6,11 @@ import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { assessmentQuestions, categoryInfo, AssessmentQuestion } from "@/data/assessmentQuestions";
-import { ChevronLeft, ChevronRight, CheckCircle2, HelpCircle } from "lucide-react";
+import { assessmentQuestions, categoryInfo } from "@/data/assessmentQuestions";
+import { ChevronLeft, ChevronRight, CheckCircle2, HelpCircle, FastForward } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { calculateComprehensiveGreenScore, GreenScoreInput } from "@/lib/scoring";
 
 export default function AssessmentPage() {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -24,7 +25,6 @@ export default function AssessmentPage() {
     (q) => q.category === currentQuestion.category
   );
   const categoryIndex = categoryQuestions.findIndex((q) => q.id === currentQuestion.id);
-  const categoryProgress = ((categoryIndex + 1) / categoryQuestions.length) * 100;
 
   const handleAnswer = (value: string | number) => {
     setAnswers({ ...answers, [currentQuestion.id]: value });
@@ -34,7 +34,7 @@ export default function AssessmentPage() {
     if (currentIndex < assessmentQuestions.length - 1) {
       setCurrentIndex(currentIndex + 1);
     } else {
-      setIsComplete(true);
+      completeAssessment();
     }
   };
 
@@ -44,32 +44,68 @@ export default function AssessmentPage() {
     }
   };
 
-  const calculateScore = () => {
-    // Simple scoring logic - in production this would be more sophisticated
-    let score = 0;
-    Object.entries(answers).forEach(([id, value]) => {
-      if (value === "yes" || value === "true") score += 4;
-      else if (typeof value === "number" && value > 50) score += 3;
-      else if (typeof value === "string" && value.includes("Monthly")) score += 4;
-      else if (typeof value === "string" && value.includes("Quarterly")) score += 3;
-      else score += 1;
-    });
-    return Math.min(100, Math.round((score / (assessmentQuestions.length * 4)) * 100));
+  const completeAssessment = () => {
+    const result = getCalculatedScore();
+    localStorage.setItem("greenScoreResult", JSON.stringify(result));
+    setIsComplete(true);
+  };
+
+  const handleSkipToResults = () => {
+    completeAssessment();
+  };
+
+  const getCalculatedScore = () => {
+    const isYes = (val: string | number | undefined) => val === "yes";
+
+    const input: GreenScoreInput = {
+      revenueInrCr: Number(answers.revenue) || 0,
+      sector: String(answers.sector) || "default",
+      energy: {
+        electricityKwh: Number(answers.electricity) || 0,
+        dieselLiters: Number(answers.diesel) || 0,
+        lpgKg: Number(answers.lpg) || 0,
+        petrolLiters: Number(answers.petrol) || 0,
+      },
+      water: {
+        totalWithdrawalKl: Number(answers.water_withdrawn) || 0,
+        recycledKl: Number(answers.water_recycled) || 0,
+        treatedKl: Number(answers.water_treated) || 0,
+      },
+      waste: {
+        totalGeneratedTonnes: Number(answers.waste_total) || 0,
+        hazardousTonnes: Number(answers.waste_hazardous) || 0,
+        recycledTonnes: Number(answers.waste_recycled) || 0,
+      },
+      renewable: {
+        renewableSharePercent: Number(answers.renew_pct) || 0,
+        greenCapexInr: Number(answers.green_capex) || 0,
+      },
+      reporting: {
+        hasEnvironmentalPolicy: isYes(answers.policy),
+        hasReductionTargets: isYes(answers.targets),
+        hasThirdPartyVerification: isYes(answers.verify),
+      }
+    };
+
+    return calculateComprehensiveGreenScore(input);
   };
 
   if (isComplete) {
-    const finalScore = calculateScore();
+    const resultString = localStorage.getItem("greenScoreResult");
+    const result = resultString ? JSON.parse(resultString) : getCalculatedScore();
+    const finalScore = result.totalScore;
+    
     return (
       <DashboardLayout>
-        <div className="max-w-2xl mx-auto py-12 text-center">
-          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-chart-1/20 mx-auto mb-6">
-            <CheckCircle2 className="h-10 w-10 text-chart-1" />
+        <div className="max-w-3xl mx-auto py-12 text-center">
+          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/20 mx-auto mb-6">
+            <CheckCircle2 className="h-10 w-10 text-primary" />
           </div>
           <h1 className="text-3xl font-bold text-foreground mb-4">
             Assessment Complete!
           </h1>
           <p className="text-muted-foreground mb-8">
-            Great job! Here's your preliminary ESG score based on your responses.
+            Based on the BRSR P6 essential indicators, here is your calculated Green Score.
           </p>
           
           <Card className="border-border mb-8">
@@ -81,6 +117,30 @@ export default function AssessmentPage() {
                   {finalScore >= 70 ? "Ready" : finalScore >= 40 ? "Developing" : "Early"}
                 </strong>
               </p>
+
+              {/* Show Pillar Breakdown */}
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mt-8 pt-8 border-t border-border">
+                <div className="bg-accent/50 p-4 rounded-lg">
+                  <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Energy</div>
+                  <div className="font-semibold text-2xl">{result.pillars.energy.score}</div>
+                </div>
+                <div className="bg-accent/50 p-4 rounded-lg">
+                  <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Water</div>
+                  <div className="font-semibold text-2xl">{result.pillars.water.score}</div>
+                </div>
+                <div className="bg-accent/50 p-4 rounded-lg">
+                  <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Waste</div>
+                  <div className="font-semibold text-2xl">{result.pillars.waste.score}</div>
+                </div>
+                <div className="bg-accent/50 p-4 rounded-lg">
+                  <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Renewables</div>
+                  <div className="font-semibold text-2xl">{result.pillars.renewable.score}</div>
+                </div>
+                <div className="bg-accent/50 p-4 rounded-lg">
+                  <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Reporting</div>
+                  <div className="font-semibold text-2xl">{result.pillars.reporting.score}</div>
+                </div>
+              </div>
             </CardContent>
           </Card>
 
@@ -90,6 +150,7 @@ export default function AssessmentPage() {
             </Button>
             <Button variant="outline" onClick={() => {
               setCurrentIndex(0);
+              setAnswers({});
               setIsComplete(false);
             }}>
               Retake Assessment
@@ -99,6 +160,9 @@ export default function AssessmentPage() {
       </DashboardLayout>
     );
   }
+
+  // Determine if we should enable the Next button
+  const hasAnsweredCurrent = answers[currentQuestion.id] !== undefined && answers[currentQuestion.id] !== "";
 
   return (
     <DashboardLayout>
@@ -116,17 +180,26 @@ export default function AssessmentPage() {
           <Progress value={progress} className="h-2" />
         </div>
 
-        {/* Category Badge */}
-        <div className="flex items-center gap-3 mb-6">
-          <div className={cn("h-3 w-3 rounded-full", category.bgColor)} />
-          <div>
-            <span className={cn("font-medium", category.color)}>
-              {category.label}
-            </span>
-            <span className="text-muted-foreground text-sm ml-2">
-              ({categoryIndex + 1}/{categoryQuestions.length})
-            </span>
+        {/* Category Badge & Skip Button */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className={cn("h-3 w-3 rounded-full", category.bgColor.replace("/20", ""))} />
+            <div>
+              <span className={cn("font-medium", category.color)}>
+                {category.label}
+              </span>
+              <span className="text-muted-foreground text-sm ml-2">
+                ({categoryIndex + 1}/{categoryQuestions.length})
+              </span>
+            </div>
           </div>
+          
+          {/* Skip Optional Button */}
+          {category.isOptional && (
+            <Button variant="secondary" size="sm" onClick={handleSkipToResults} className="gap-2">
+              Skip Optional <FastForward className="h-3 w-3" />
+            </Button>
+          )}
         </div>
 
         {/* Question Card */}
@@ -158,7 +231,6 @@ export default function AssessmentPage() {
                 {[
                   { value: "yes", label: "Yes" },
                   { value: "no", label: "No" },
-                  { value: "partial", label: "Partially / In Progress" },
                 ].map((option) => (
                   <Label
                     key={option.value}
@@ -166,7 +238,7 @@ export default function AssessmentPage() {
                     className={cn(
                       "flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-colors",
                       answers[currentQuestion.id] === option.value
-                        ? "border-primary bg-accent"
+                        ? "border-primary bg-primary/5"
                         : "border-border hover:bg-accent/50"
                     )}
                   >
@@ -203,9 +275,9 @@ export default function AssessmentPage() {
                     key={option}
                     htmlFor={option}
                     className={cn(
-                      "flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-colors",
+                      "flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-colors capitalize",
                       answers[currentQuestion.id] === option
-                        ? "border-primary bg-accent"
+                        ? "border-primary bg-primary/5"
                         : "border-border hover:bg-accent/50"
                     )}
                   >
@@ -232,10 +304,10 @@ export default function AssessmentPage() {
 
           <Button
             onClick={handleNext}
-            disabled={!answers[currentQuestion.id]}
+            disabled={!hasAnsweredCurrent}
             className="gap-2"
           >
-            {currentIndex === assessmentQuestions.length - 1 ? "Complete" : "Next"}
+            {currentIndex === assessmentQuestions.length - 1 ? "Complete Assessment" : "Next"}
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>

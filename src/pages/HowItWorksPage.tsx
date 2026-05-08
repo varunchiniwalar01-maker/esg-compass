@@ -3,9 +3,8 @@ import { Footer } from "@/components/ui/footer";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { 
-  ClipboardList, 
+  Leaf, 
   BarChart3, 
-  Target, 
   FileText, 
   Share2,
   ArrowRight,
@@ -15,38 +14,31 @@ import {
 const steps = [
   {
     number: "01",
-    icon: ClipboardList,
-    title: "Complete Your ESG Assessment",
-    description: "Answer 20-30 simple questions about your business operations across Environmental, Social, and Governance areas. No technical jargon — just straightforward questions about your current practices.",
-    highlights: ["Takes under 30 minutes", "Questions tailored for Indian SMEs", "Save progress anytime"],
+    icon: Leaf,
+    title: "Log Your Yearly Carbon Data",
+    description: "Enter your annual activity data — electricity (kWh), diesel (L), petrol (L), and LPG (kg). Along with your revenue and sector, this is all we need to calculate your emissions.",
+    highlights: ["Takes under 5 minutes", "Just 4 fuel inputs + revenue", "Scope 1 & Scope 2 separated automatically"],
   },
   {
     number: "02",
     icon: BarChart3,
-    title: "Get Your ESG Score & Dashboard",
-    description: "Instantly receive your ESG scores with color-coded risk indicators. Your personalized dashboard shows where you stand and highlights areas that need attention.",
-    highlights: ["Score breakdown by E, S, G", "Risk level indicators", "Monthly trend tracking"],
+    title: "Get Your Green Score Instantly",
+    description: "Your data is run through a precise formula: total_co2e → intensity → ratio → cat_score. You'll see every intermediate step, so you know exactly how your score was derived.",
+    highlights: ["Formula: cat_score = clamp(100×(2−ratio)/1.8, 0, 100)", "Benchmarked against your sector", "Score out of 100"],
   },
   {
     number: "03",
-    icon: Target,
-    title: "Set & Track Sustainability Goals",
-    description: "Choose from pre-built goal templates or create custom targets. Track progress on energy reduction, waste management, policy implementation, and more.",
-    highlights: ["Pre-built goal templates", "Progress tracking", "Deadline reminders"],
+    icon: FileText,
+    title: "Generate AI-Powered Reports",
+    description: "Click one button to generate a professional carbon report based on your actual logged numbers — not mock data. It includes your Scope 1 vs 2 breakdown, intensity, and score analysis.",
+    highlights: ["Uses your real data, not templates", "Copy or export as PDF", "Investor-ready language"],
   },
   {
     number: "04",
-    icon: FileText,
-    title: "Generate AI-Powered Reports",
-    description: "Create professional ESG summaries with one click. Get insights on your strengths, gaps, and a 90-day improvement plan — perfect for investor meetings.",
-    highlights: ["Professional formatting", "Export to PDF", "Investor-ready language"],
-  },
-  {
-    number: "05",
     icon: Share2,
     title: "Share With Stakeholders",
-    description: "Generate shareable links to your ESG snapshot. Investors and partners can view your scores and goals without needing to create an account.",
-    highlights: ["No login required for viewers", "Control what's shared", "Update anytime"],
+    description: "Generate shareable links to your carbon snapshot. Investors and green financing partners can view your Green Score and emissions data without creating an account.",
+    highlights: ["No login required for viewers", "Control what's shared", "Perfect for green financing applications"],
   },
 ];
 
@@ -63,7 +55,7 @@ export default function HowItWorksPage() {
                 How GreenTrack Works
               </h1>
               <p className="mt-4 text-lg text-muted-foreground">
-                From assessment to investor-ready reports in five simple steps. 
+                From carbon data to a bankable Green Score in four simple steps.
                 No sustainability expertise required.
               </p>
             </div>
@@ -123,7 +115,7 @@ export default function HowItWorksPage() {
               </h2>
               <Link to="/signup">
                 <Button size="lg" className="gap-2">
-                  Start Your Free Assessment
+                  Start Tracking Your Carbon
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>

@@ -4,6 +4,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
+import { AuthProvider } from "@/context/auth";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import HomePage from "./pages/HomePage";
 import HowItWorksPage from "./pages/HowItWorksPage";
 import PricingPage from "./pages/PricingPage";
@@ -11,10 +13,7 @@ import LegalPage from "./pages/LegalPage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import DashboardPage from "./pages/DashboardPage";
-import AssessmentPage from "./pages/AssessmentPage";
-import GoalsPage from "./pages/GoalsPage";
 import CarbonPage from "./pages/CarbonPage";
-import InvestorQAPage from "./pages/InvestorQAPage";
 import ReportsPage from "./pages/ReportsPage";
 import DocumentsPage from "./pages/DocumentsPage";
 import SharePage from "./pages/SharePage";
@@ -31,34 +30,33 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Routes>
-            {/* Public Pages */}
-            <Route path="/" element={<HomePage />} />
-            <Route path="/how-it-works" element={<HowItWorksPage />} />
-            <Route path="/pricing" element={<PricingPage />} />
-            <Route path="/legal" element={<LegalPage />} />
+          <AuthProvider>
+            <Routes>
+              {/* Public Pages */}
+              <Route path="/" element={<HomePage />} />
+              <Route path="/how-it-works" element={<HowItWorksPage />} />
+              <Route path="/pricing" element={<PricingPage />} />
+              <Route path="/legal" element={<LegalPage />} />
 
-            {/* Auth Pages */}
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/signup" element={<SignupPage />} />
+              {/* Auth Pages */}
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/signup" element={<SignupPage />} />
 
-            {/* Dashboard Pages */}
-            <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/dashboard/assessment" element={<AssessmentPage />} />
-            <Route path="/dashboard/goals" element={<GoalsPage />} />
-            <Route path="/dashboard/carbon" element={<CarbonPage />} />
-            <Route path="/dashboard/investor-qa" element={<InvestorQAPage />} />
-            <Route path="/dashboard/reports" element={<ReportsPage />} />
-            <Route path="/dashboard/documents" element={<DocumentsPage />} />
-            <Route path="/dashboard/share" element={<SharePage />} />
-            <Route path="/dashboard/settings" element={<SettingsPage />} />
+              {/* Dashboard Pages - Protected */}
+              <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+              <Route path="/dashboard/carbon" element={<ProtectedRoute><CarbonPage /></ProtectedRoute>} />
+              <Route path="/dashboard/reports" element={<ProtectedRoute><ReportsPage /></ProtectedRoute>} />
+              <Route path="/dashboard/documents" element={<ProtectedRoute><DocumentsPage /></ProtectedRoute>} />
+              <Route path="/dashboard/share" element={<ProtectedRoute><SharePage /></ProtectedRoute>} />
+              <Route path="/dashboard/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
 
-            {/* Public Share View */}
-            <Route path="/share/:id" element={<PublicSharePage />} />
+              {/* Public Share View */}
+              <Route path="/share/:id" element={<PublicSharePage />} />
 
-            {/* Catch-all */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+              {/* Catch-all */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>
     </ThemeProvider>

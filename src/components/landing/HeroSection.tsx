@@ -27,20 +27,20 @@ export function HeroSection() {
           </div>
 
           <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-            Track Your ESG Journey,{" "}
-            <span className="text-primary">Build Investor Trust</span>
+            Track Your Carbon,{" "}
+            <span className="text-primary">Build Your Green Score</span>
           </h1>
 
           <p className="mt-6 text-lg text-muted-foreground leading-relaxed">
-            A simple, powerful platform to assess your sustainability readiness, 
-            set meaningful ESG goals, and generate investor-ready reports — 
-            designed specifically for growing Indian businesses.
+            A simple, powerful platform to measure your carbon footprint, 
+            calculate your Green Score using a precise formula, and generate 
+            bank-ready reports for green financing.
           </p>
 
           <div className="mt-10 flex flex-col sm:flex-row gap-4">
             <Link to="/signup">
               <Button size="lg" className="gap-2 w-full sm:w-auto">
-                Start Free Assessment
+                Start Tracking Now
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
@@ -54,21 +54,21 @@ export function HeroSection() {
           <div className="mt-12 grid grid-cols-3 gap-6">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent">
-                <BarChart3 className="h-5 w-5 text-accent-foreground" />
+                <Leaf className="h-5 w-5 text-accent-foreground" />
               </div>
-              <span className="text-sm font-medium text-foreground">ESG Scoring</span>
+              <span className="text-sm font-medium text-foreground">Carbon Tracking</span>
             </div>
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent">
-                <Target className="h-5 w-5 text-accent-foreground" />
+                <BarChart3 className="h-5 w-5 text-accent-foreground" />
               </div>
-              <span className="text-sm font-medium text-foreground">Goal Tracking</span>
+              <span className="text-sm font-medium text-foreground">Green Score</span>
             </div>
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent">
                 <FileText className="h-5 w-5 text-accent-foreground" />
               </div>
-              <span className="text-sm font-medium text-foreground">AI Summaries</span>
+              <span className="text-sm font-medium text-foreground">Bank Reports</span>
             </div>
           </div>
         </div>

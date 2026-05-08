@@ -4,22 +4,36 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Leaf, Eye, EyeOff } from "lucide-react";
+import { Leaf, Eye, EyeOff, Loader2 } from "lucide-react";
+import { useAuth } from "@/context/auth";
+import { toast } from "sonner";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { login, isLoading } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Will integrate with auth system - for now, navigate to dashboard
-    navigate("/dashboard");
+    try {
+      await login(email, password);
+      toast.success("Welcome back!");
+      navigate("/dashboard");
+    } catch (error) {
+      toast.error("Invalid credentials");
+    }
   };
 
-  const handleDemoAccess = () => {
-    navigate("/dashboard");
+  const handleDemoAccess = async () => {
+    try {
+      await login("demo@example.com", "password");
+      toast.success("Welcome to the demo!");
+      navigate("/dashboard");
+    } catch (error) {
+      toast.error("Something went wrong");
+    }
   };
 
   return (
@@ -47,14 +61,15 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                disabled={isLoading}
               />
             </div>
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Password</Label>
-                <Link 
-                  to="/forgot-password" 
+                <Link
+                  to="/forgot-password"
                   className="text-sm text-primary hover:underline"
                 >
                   Forgot password?
@@ -68,6 +83,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  disabled={isLoading}
                 />
                 <button
                   type="button"
@@ -83,8 +99,15 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <Button type="submit" className="w-full">
-              Sign in
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Signing in...
+                </>
+              ) : (
+                "Sign in"
+              )}
             </Button>
 
             <div className="relative">
@@ -96,11 +119,12 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <Button 
-              type="button" 
-              variant="outline" 
+            <Button
+              type="button"
+              variant="outline"
               className="w-full"
               onClick={handleDemoAccess}
+              disabled={isLoading}
             >
               Try Demo Dashboard
             </Button>

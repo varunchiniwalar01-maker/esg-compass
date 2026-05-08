@@ -8,11 +8,11 @@ export function CTASection() {
       <div className="container">
         <div className="text-center max-w-2xl mx-auto">
           <h2 className="text-3xl font-bold text-primary-foreground sm:text-4xl">
-            Ready to Start Your ESG Journey?
+            Ready to Get Your Green Score?
           </h2>
           <p className="mt-4 text-lg text-primary-foreground/80">
-            Join hundreds of Indian businesses already tracking their sustainability progress. 
-            Start with a free assessment today.
+            Join hundreds of Indian businesses already tracking their carbon footprint 
+            and building their sustainability profile for green financing.
           </p>
           <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/signup">
